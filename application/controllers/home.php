@@ -9,7 +9,7 @@ class Home extends CI_Controller {
 		$this->load->library('phpwhois');
 		
 		$phpwhois = new Phpwhois();
-		$domain = '76.102.19.35';
+		$domain = '89.89.89.89';
 
 		$result = $phpwhois->whois->Lookup($domain);
 		echo json_encode($result);die;

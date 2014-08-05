@@ -252,7 +252,7 @@ class WhoisClient {
 			
 			// Process data
 			$result = $this->Process($result,$deep_whois);
-		
+			
 			// Add new servers to the server list
 			if (isset($result['regyinfo']['servers']))
 				$result['regyinfo']['servers'] = array_merge($servers,$result['regyinfo']['servers']);
@@ -435,7 +435,6 @@ class WhoisClient {
 	 * from the handler. On failure, returns passed result unaltered.
 	 */
 	function Process (&$result, $deep_whois=true) {
-
 		$handler_name = str_replace('.','_',$this->Query['handler']);
 
 		// If the handler has not already been included somehow, include it now

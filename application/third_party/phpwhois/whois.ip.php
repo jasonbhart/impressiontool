@@ -121,7 +121,6 @@ class ip_handler extends WhoisClient {
 				$result = $this->parse_results($result, $rwdata, $query, true);
 			}
 		}
-		return $ranges;
 		unset($this->Query['args']);
 
 		while (count($this->more_data) > 0) {

@@ -6,15 +6,29 @@ if (!defined('BASEPATH'))
 class Home extends CI_Controller {
 
 	public function index() {
-		$this->load->library('phpwhois');
-		
-		$phpwhois = new Phpwhois();
-		$domain = '89.89.89.89';
-
-		$result = $phpwhois->whois->Lookup($domain);
-		echo json_encode($result);die;
-		$data = array('result' => $result);
-		$this->load->view('home', $data);
+		$resultWhois = array();
+		if (isset($_POST['ipAddress'])) {
+			$ipAddress = $_POST['ipAddress'];
+			$ipAddressArray = explode('\n', trim($ipAddress));
+			if ($ipAddressArray[0] == "") {
+				$ipAddressArray[] = $ipAddress;
+			}
+			$this->load->library('phpwhois');
+			$phpwhois = new Phpwhois();
+			$tempResultWhois = array();
+			foreach ($ipAddressArray as $ip) {
+				$rawWhois = $phpwhois->whois->Getipowner($ip);
+				foreach ($rawWhois as $whois) {
+					$tempResultWhois['ip'] = $ip;
+					$tempResultWhois['ip_block_name'] = $whois['regrinfo']['network']['name'];
+					$tempResultWhois['ip_block_range'] = $whois['regrinfo']['network']['inetnum'];
+					$tempResultWhois['ip_block_owner'] = $whois['regrinfo']['owner']['organization'];
+					$resultWhois[] = $tempResultWhois;
+				}
+			}
+		}
+		$viewData = array('resultWhois' => $resultWhois);
+		$this->load->view('home', $viewData);
 	}
 
 }

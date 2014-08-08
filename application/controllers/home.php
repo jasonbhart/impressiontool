@@ -53,6 +53,7 @@ class Home extends CI_Controller {
                 $ip_block_owner = $_POST['ip_block_owner'];
                 $status = $_POST['status'];
                 $this->Blockowner_model->insert_blockowner($ip_block_owner, $status);
+                echo 1;
                 break;
             default:
                 echo 0;

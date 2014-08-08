@@ -110,9 +110,9 @@
                             <input type="hidden" name="ip_block_name" id="ip-block-name">
                             <input type="hidden" name="action" value="editBlockName">
                             <div class="form-group">
-                                <select class="form-control">
-                                    <option>Black List</option>
-                                    <option>White List</option>
+                                <select name="status" class="form-control">
+                                    <option value="1">Black List</option>
+                                    <option value="0">White List</option>
                                 </select>
                             </div>
                         </div>
@@ -138,9 +138,9 @@
                             <input type="hidden" name="ip_block_range" id="ip-block-range">
                             <input type="hidden" name="action" value="editBlockRange">
                             <div class="form-group">
-                                <select class="form-control">
-                                    <option>Black List</option>
-                                    <option>White List</option>
+                                <select name="status" class="form-control">
+                                    <option value="1">Black List</option>
+                                    <option value="0">White List</option>
                                 </select>
                             </div>
                         </div>
@@ -166,9 +166,9 @@
                             <input type="hidden" name="ip_block_owner" id="ip-block-owner">
                             <input type="hidden" name="action" value="editBlockOwner">
                             <div class="form-group">
-                                <select class="form-control">
-                                    <option>Black List</option>
-                                    <option>White List</option>
+                                <select name="status" class="form-control">
+                                    <option value="1">Black List</option>
+                                    <option value="0">White List</option>
                                 </select>
                             </div>
                         </div>

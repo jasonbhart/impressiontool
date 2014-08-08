@@ -35,13 +35,24 @@ class Home extends CI_Controller {
         $action = $_REQUEST['action'];
         switch ($action) {
             case 'editBlockName':
+                $this->load->model('Blockname_model', '', TRUE);
+                $ip_block_name = $_POST['ip_block_name'];
+                $status = $_POST['status'];
+                $this->Blockname_model->insert_blockname($ip_block_name, $status);
                 echo 1;
                 break;
             case 'editBlockRange':
-                echo 0;
+                $this->load->model('Blockrange_model', '', TRUE);
+                $ip_block_range = $_POST['ip_block_range'];
+                $status = $_POST['status'];
+                $this->Blockrange_model->insert_blockrange($ip_block_range, $status);
+                echo 1;
                 break;
             case 'editBlockOwner':
-                echo 1;
+                $this->load->model('Blockowner_model', '', TRUE);
+                $ip_block_owner = $_POST['ip_block_owner'];
+                $status = $_POST['status'];
+                $this->Blockowner_model->insert_blockowner($ip_block_owner, $status);
                 break;
             default:
                 echo 0;

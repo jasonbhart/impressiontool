@@ -297,6 +297,22 @@ class Whois extends WhoisClient {
 		}
 	}
 
+	//validate a ip 
+	function checkValidateIp($ip) {
+		$query = $ip;
+		
+		$IDN = new idna_convert();
+
+		$query = $IDN->encode(utf8_encode($query));
+
+		// If query is an ip address do ip lookup
+
+		if ($query == long2ip(ip2long($query))) {
+			return 1;
+		}
+		return 0;
+	}
+
 	//get all ip owner
 	/*
 	 *  Lookup query
@@ -332,9 +348,9 @@ class Whois extends WhoisClient {
 		$this->Query['host_name'] = @gethostbyaddr($ip);
 		$output = $this->GetRawData($query);
 		// Create result and set 'rawdata'
-		$result = array( 'rawdata' => $output );		
+		$result = array('rawdata' => $output);
 		$result = $this->set_whois_info($result);
-		$handler_name = str_replace('.','_',$this->Query['handler']);
+		$handler_name = str_replace('.', '_', $this->Query['handler']);
 
 		// If the handler has not already been included somehow, include it now
 		$HANDLER_FLAG = sprintf("__%s_HANDLER__", strtoupper($handler_name));
@@ -343,22 +359,21 @@ class Whois extends WhoisClient {
 			include($this->Query['file']);
 
 		// If the handler has still not been included, append to query errors list and return
-		if (!defined($HANDLER_FLAG))
-			{
-			$this->Query['errstr'][] = "Can't find $handler_name handler: ".$this->Query['file'];
+		if (!defined($HANDLER_FLAG)) {
+			$this->Query['errstr'][] = "Can't find $handler_name handler: " . $this->Query['file'];
 			return($result);
-			}
+		}
 
 		if (!$this->gtld_recurse && $this->Query['file'] == 'whois.gtld.php')
 			return $result;
 
 		// Pass result to handler
-		$object = $handler_name.'_handler';
-		
+		$object = $handler_name . '_handler';
+
 		$handler = new $object('');
 
 		// If handler returned an error, append it to the query errors list
-		if(isSet($handler->Query['errstr']))
+		if (isSet($handler->Query['errstr']))
 			$this->Query['errstr'][] = $handler->Query['errstr'];
 
 		$handler->deep_whois = true;
@@ -366,14 +381,14 @@ class Whois extends WhoisClient {
 		$checkResult = false;
 		foreach ($result['rawdata'] as $item) {
 			$arrayTest['rawdata'] = array($item);
-			$res = $handler->parse($arrayTest,$this->Query['query']);
-			if(isset($res['regrinfo']['network']) && isset($res['regrinfo']['owner'])){
+			$res = $handler->parse($arrayTest, $this->Query['query']);
+			if (isset($res['regrinfo']['network']) && isset($res['regrinfo']['owner'])) {
 				$ipowners[] = $res;
 				$checkResult = true;
 			}
 		}
-		if(!$checkResult){
-			$res = $handler->parse($result,$this->Query['query']);
+		if (!$checkResult) {
+			$res = $handler->parse($result, $this->Query['query']);
 			$ipowners[] = $res;
 		}
 		return $ipowners;

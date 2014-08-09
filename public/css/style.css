@@ -1,3 +1,9 @@
 .lookup-result tr{
     cursor: pointer;
 }
+.black {
+	background: red;
+}
+.white {
+	background: green;
+}

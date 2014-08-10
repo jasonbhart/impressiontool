@@ -296,7 +296,7 @@ class Whois extends WhoisClient {
 				$result['regrinfo']['domain']['nserver'] = $this->FixNameServer($result['regrinfo']['domain']['nserver']);
 		}
 	}
-
+	
 	//validate a ip 
 	function checkValidateIp($ip) {
 		$query = $ip;

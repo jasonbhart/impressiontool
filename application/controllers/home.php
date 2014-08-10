@@ -9,7 +9,7 @@ class Home extends CI_Controller {
 		$resultWhois = array();
 		if (isset($_POST['ipAddress'])) {
 			$ipAddress = $_POST['ipAddress'];
-			$ipAddressArray = explode('\n', trim($ipAddress));
+			$ipAddressArray = explode(PHP_EOL, trim($ipAddress));
 			if ($ipAddressArray[0] == "") {
 				$ipAddressArray[] = $ipAddress;
 			}

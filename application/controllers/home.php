@@ -6,70 +6,93 @@ if (!defined('BASEPATH'))
 class Home extends CI_Controller {
 
 	public function index() {
-		$resultWhois = array();
-		if (isset($_POST['ipAddress'])) {
-			$ipAddress = $_POST['ipAddress'];
-			$ipAddressArray = explode(PHP_EOL, trim($ipAddress));
-			if ($ipAddressArray[0] == "") {
-				$ipAddressArray[] = $ipAddress;
-			}
-			$this->load->library('phpwhois');
-			$phpwhois = new Phpwhois();
-			$tempResultWhois = array();
-			$this->load->model('Lookup_model', '', TRUE);
-			$this->load->model('Blockname_model', '', TRUE);
-			$this->load->model('Blockrange_model', '', TRUE);
-			$this->load->model('Blockowner_model', '', TRUE);
-			$cacheLookups = $this->Lookup_model->getLookupList($ipAddressArray);
-			foreach ($ipAddressArray as $ip) {
-				$ip = trim($ip);
-				if ($phpwhois->whois->checkValidateIp($ip)) {
-					if (!isset($cacheLookups[$ip])) {
-						$rawWhois = $phpwhois->whois->Getipowner($ip);
-						foreach ($rawWhois as $whois) {
-							$tempResultWhois['ip'] = $ip;
+//		$this->load->library('phpwhois');
+//		$phpwhois = new Phpwhois();
+//		$rawWhois = $phpwhois->whois->Getipowner('107.146.50.242');
+//		print_r($rawWhois);die;
+		$viewData = array();
+		$this->load->view('home', $viewData);
+	}
+
+	function lookup() {
+		$ipAddress = $_POST['ipAddress'];
+		$ipAddressArray = explode(PHP_EOL, trim($ipAddress));
+		if ($ipAddressArray[0] == "") {
+			$ipAddressArray[] = $ipAddress;
+		}
+		$this->load->library('phpwhois');
+		$phpwhois = new Phpwhois();
+		$tempResultWhois = array();
+		$this->load->model('Lookup_model', '', TRUE);
+		$this->load->model('Blockname_model', '', TRUE);
+		$this->load->model('Blockrange_model', '', TRUE);
+		$this->load->model('Blockowner_model', '', TRUE);
+		$cacheLookups = $this->Lookup_model->getLookupList($ipAddressArray);
+		foreach ($ipAddressArray as $ip) {
+			$ip = trim($ip);
+			if ($phpwhois->whois->checkValidateIp($ip)) {
+				if (!isset($cacheLookups[$ip])) {
+					$rawWhois = $phpwhois->whois->Getipowner($ip);
+					foreach ($rawWhois as $whois) {
+						$tempResultWhois['ip'] = $ip;
+						$tempResultWhois['ip_block_name'] = '';
+						$tempResultWhois['ip_block_range'] = '';
+						$tempResultWhois['ip_block_owner'] = '';
+						if(isset($whois['regrinfo']['network']['name']))
 							$tempResultWhois['ip_block_name'] = $whois['regrinfo']['network']['name'];
+						if(isset($whois['regrinfo']['network']['inetnum']))
 							$tempResultWhois['ip_block_range'] = $whois['regrinfo']['network']['inetnum'];
+						if(isset($whois['regrinfo']['owner']['organization']))
 							$tempResultWhois['ip_block_owner'] = $whois['regrinfo']['owner']['organization'];
-							//check black list or white list from owner, name, range
-							$tempResultWhois['whois_status'] = $this->Blockowner_model->getStatus($tempResultWhois['ip_block_owner']);
+						
+						//check with three owner
+						if(isset($whois['regrinfo']['network'][0]['name']))
+							$tempResultWhois['ip_block_name'] = $whois['regrinfo']['network'][0]['name'];
+						if(isset($whois['regrinfo']['network'][0]['inetnum']))
+							$tempResultWhois['ip_block_range'] = $whois['regrinfo']['network'][0]['inetnum'];
+						if(isset($whois['regrinfo']['owner'][0]))
+							$tempResultWhois['ip_block_owner'] = $whois['regrinfo']['owner'][0]['organization'];
+						//check black list or white list from owner, name, range
+						$tempResultWhois['whois_status'] = $this->Blockowner_model->getStatus($tempResultWhois['ip_block_owner']);
+						if ($tempResultWhois['whois_status'] == 0) { //owner is white
+							$tempResultWhois['whois_status'] = $this->Blockrange_model->getStatus($tempResultWhois['ip_block_range']);
 							if ($tempResultWhois['whois_status'] == 0) { //owner is white
-								$tempResultWhois['whois_status'] = $this->Blockrange_model->getStatus($tempResultWhois['ip_block_range']);
-								if ($tempResultWhois['whois_status'] == 0) { //owner is white
-									$tempResultWhois['whois_status'] = $this->Blockname_model->getStatus($tempResultWhois['ip_block_name']);
-								}
+								$tempResultWhois['whois_status'] = $this->Blockname_model->getStatus($tempResultWhois['ip_block_name']);
 							}
-							//insert lookup result
-							$this->Lookup_model->insert_lookup($ip, $tempResultWhois['ip_block_name'], $tempResultWhois['ip_block_range'], $tempResultWhois['ip_block_owner']);
-							$resultWhois[] = $tempResultWhois;
 						}
-					} else {
-						foreach ($cacheLookups[$ip] as $lookup) {
-							$tempResultWhois['ip'] = $lookup->ip;
-							$tempResultWhois['ip_block_name'] = $lookup->ip_block_name;
-							$tempResultWhois['ip_block_range'] = $lookup->ip_block_range;
-							$tempResultWhois['ip_block_owner'] = $lookup->ip_block_owner;
-							//check black list or white list from owner, name, range
-							$tempResultWhois['whois_status'] = $this->Blockowner_model->getStatus($tempResultWhois['ip_block_owner']);
+						//insert lookup result
+						$this->Lookup_model->insert_lookup($ip, $tempResultWhois['ip_block_name'], $tempResultWhois['ip_block_range'], $tempResultWhois['ip_block_owner']);
+						$resultWhois[] = $tempResultWhois;
+					}
+				} else {
+					foreach ($cacheLookups[$ip] as $lookup) {
+						$tempResultWhois['ip'] = $lookup->ip;
+						$tempResultWhois['ip_block_name'] = $lookup->ip_block_name;
+						$tempResultWhois['ip_block_range'] = $lookup->ip_block_range;
+						$tempResultWhois['ip_block_owner'] = $lookup->ip_block_owner;
+						//check black list or white list from owner, name, range
+						$tempResultWhois['whois_status'] = $this->Blockowner_model->getStatus($tempResultWhois['ip_block_owner']);
+						if ($tempResultWhois['whois_status'] == 0) { //owner is white
+							$tempResultWhois['whois_status'] = $this->Blockrange_model->getStatus($tempResultWhois['ip_block_range']);
 							if ($tempResultWhois['whois_status'] == 0) { //owner is white
-								$tempResultWhois['whois_status'] = $this->Blockrange_model->getStatus($tempResultWhois['ip_block_range']);
-								if ($tempResultWhois['whois_status'] == 0) { //owner is white
-									$tempResultWhois['whois_status'] = $this->Blockname_model->getStatus($tempResultWhois['ip_block_name']);
-								}
+								$tempResultWhois['whois_status'] = $this->Blockname_model->getStatus($tempResultWhois['ip_block_name']);
 							}
-							$resultWhois[] = $tempResultWhois;
 						}
+						$resultWhois[] = $tempResultWhois;
 					}
 				}
 			}
 		}
 		$viewData = array('resultWhois' => $resultWhois);
-		$this->load->view('home', $viewData);
+		return $this->load->view('ajax/lookup', $viewData);
 	}
 
 	public function ajax() {
 		$action = $_REQUEST['action'];
 		switch ($action) {
+			case 'getLookup':
+				echo $this->lookup();
+				break;
 			case 'editBlockName':
 				$this->load->model('Blockname_model', '', TRUE);
 				$ip_block_name = $_POST['ip_block_name'];

@@ -15,10 +15,10 @@
                 </div>
                 <div class="col-md-8">
                     <h1 class="text-center"> Impression Tool</h1>
-                    <form role="form" method="post">
+                    <form role="form" onclick="return submitListIps()" method="post">
                         <div class="form-group">
                             <label for="ipAddress">List of Ips</label>
-                            <textarea rows="8" name="ipAddress" class="form-control"><?php if (isset($_POST['ipAddress'])) echo htmlspecialchars(trim($_POST['ipAddress'])); ?></textarea>
+                            <textarea rows="8" name="ipAddress" id="ipAddress" class="form-control"><?php if (isset($_POST['ipAddress'])) echo htmlspecialchars(trim($_POST['ipAddress'])); ?></textarea>
                         </div>
                         <button type="submit" class="btn btn-default">Submit</button>
                     </form>
@@ -32,34 +32,21 @@
 
                 </div>
                 <div class="col-md-8">
-					<?php if (count($resultWhois) > 0): ?>
-						<h3 class="text-center"> Result</h3>
-						<table class="lookup-result table">
-							<thead>
-								<tr>
-									<th>#</th>
-									<th>Ip</th>
-									<th>IP block name</th>
-									<th>IP block range</th>
-									<th>IP block owner</th>
-								</tr>
-							</thead>
-							<tbody>
-								<?php foreach ($resultWhois as $index => $whois): ?>
-									<?php if ($whois['whois_status'] == -1) $class = 'notwhois'; ?>
-									<?php if ($whois['whois_status'] == 1) $class = 'black'; ?>
-									<?php if ($whois['whois_status'] == 0) $class = 'white'; ?>
-									<tr class="<?php echo $class; ?> tr_<?php echo $index; ?>"> 
-										<td><?php echo ($index + 1); ?></td>
-										<td><?php echo $whois['ip']; ?></td>
-										<td onclick="setDataToEditBlockName(this, '<?php echo $whois['ip_block_name']; ?>')" data-toggle="modal" data-target="#addToListBlockName"><?php echo $whois['ip_block_name']; ?></td>
-										<td onclick="setDataToEditBlockRange(this, '<?php echo $whois['ip_block_range']; ?>')" data-toggle="modal" data-target="#addToListBlockRange"><?php echo $whois['ip_block_range']; ?></td>
-										<td onclick="setDataToEditBlockOwner(this, '<?php echo $whois['ip_block_owner']; ?>')" data-toggle="modal" data-target="#addToListBlockOwner"><?php echo $whois['ip_block_owner']; ?></td>
-									</tr>
-								<?php endforeach; ?>
-							</tbody>
-						</table>
-					<?php endif; ?>
+					<h3 class="text-center"> Result</h3>
+					<table class="lookup-result table">
+						<thead>
+							<tr>
+								<th>#</th>
+								<th>Ip</th>
+								<th>IP block name</th>
+								<th>IP block range</th>
+								<th>IP block owner</th>
+							</tr>
+						</thead>
+						<tbody>
+						</tbody>
+					</table>
+					<p id="loading-data" style="display: none">Loading data...</p>
                 </div>
                 <div class="col-md-2">
 
@@ -67,58 +54,127 @@
             </div>
         </div>
         <script>
-											var active_select = '';
-											var active_field;
-											function setDataToEditBlockName(field, data) {
-												$('#ip-block-name').val(data);
-												active_select = 'blockname-status';
-												active_field = field;
-											}
-											function setDataToEditBlockRange(field, data) {
-												$('#ip-block-range').val(data);
-												active_select = 'blockrange-status';
-												active_field = field;
-											}
-											function setDataToEditBlockOwner(field, data) {
-												$('#ip-block-owner').val(data);
-												active_select = 'blockowner-status';
-												active_field = field;
-											}
-											function submitEditForm(form) {
-												$.ajax({
-													type: $(form).attr('method'),
-													url: $(form).attr('action'),
-													data: $(form).serialize(),
-													success: function(msg) {
-														if (msg == 1) {
-															var list_class;
-															if ($('.' + active_select + ' :selected').val() == 1) {
-																list_class = 'black';
-															}
-															;
-															if ($('.' + active_select + ' :selected').val() == 0) {
-																list_class = 'white';
-															}
-															;
-															$(active_field).removeClass('black');
-															$(active_field).removeClass('white');
-															$(active_field).removeClass('notwhois');
-															$(active_field).addClass(list_class);
-															$('.modal').modal('hide');
-														}
-														else {
-															alert('error');
-														}
-													},
-													error: function() {
+						var active_select = '';
+						var active_field;
+						var ipPackages = [];
+						var currentPackage = 0;
+						var currentResult = 0;
+						var isLookup = false;
+						function submitListIps() {
+							ipPackages = [];
+							currentPackage = 0;
+							currentResult = 0;
+							$('.lookup-result tbody').html('');
+							var ips = $('#ipAddress').val().trim();
+							if (ips.length == "") {
+								return false;
+							}
+							ips = ips.split("\n");
+							var itemsPerSmallerArr = 10;
+							var count = 0;
+							var tmpArr = [];
+							for (i = 0; i < ips.length; i++) {
+								if (count < itemsPerSmallerArr)
+								{
+									tmpArr.push(ips[i]);
+								}
+								else
+								{
+									ipPackages.push(tmpArr);
+									count = 0;
+									tmpArr = [];
+									tmpArr.push(ips[i]);
+								}
+								count++;
+							}
+							;
+							ipPackages.push(tmpArr);
+							ajaxLookup();
+							return false;
+						}
+						function ajaxLookup() {
+							$('#loading-data').show();
+							if (!isLookup) {
+								isLookup = true;
+								$.ajax({
+									type: 'post',
+									url: '<?php echo base_url('index.php/home/ajax'); ?>',
+									data: {
+										'action': 'getLookup',
+										'ipAddress': ipPackages[currentPackage].join('\n'),
+										'currentResult': currentResult
+									},
+									success: function(msg) {
+										$('.lookup-result tbody').append(msg);
+										currentResult = $('.lookup-result tr').length;
+										$('#loading-data').hide();
+										isLookup = false;
+									},
+									error: function() {
+
+									}
+								});
+							}
+						}
+						function setDataToEditBlockName(field, data) {
+							$('#ip-block-name').val(data);
+							active_select = 'blockname-status';
+							active_field = field;
+						}
+						function setDataToEditBlockRange(field, data) {
+							$('#ip-block-range').val(data);
+							active_select = 'blockrange-status';
+							active_field = field;
+						}
+						function setDataToEditBlockOwner(field, data) {
+							$('#ip-block-owner').val(data);
+							active_select = 'blockowner-status';
+							active_field = field;
+						}
+						function submitEditForm(form) {
+							$.ajax({
+								type: $(form).attr('method'),
+								url: $(form).attr('action'),
+								data: $(form).serialize(),
+								success: function(msg) {
+									if (msg == 1) {
+										var list_class;
+										if ($('.' + active_select + ' :selected').val() == 1) {
+											list_class = 'black';
+										}
+										;
+										if ($('.' + active_select + ' :selected').val() == 0) {
+											list_class = 'white';
+										}
+										;
+										$(active_field).removeClass('black');
+										$(active_field).removeClass('white');
+										$(active_field).removeClass('notwhois');
+										$(active_field).addClass(list_class);
+										$('.modal').modal('hide');
+									}
+									else {
+										alert('error');
+									}
+								},
+								error: function() {
 
 
 
-													}
-												});
-												return false;
-											}
-
+								}
+							});
+							return false;
+						}
+						//check user go to bottom make a new data
+						$(window).scroll(function() {
+							if ($(window).scrollTop() + window.innerHeight == $(document).height()) {
+								currentPackage++;
+								if (currentPackage >= ipPackages.length) {
+									return;
+								}
+								ajaxLookup();
+							}
+						});
         </script>
         <!-- Modal -->
         <div class="modal fade" id="addToList" tabindex="-1" role="dialog" aria-labelledby="addToListBlockName" aria-hidden="true">

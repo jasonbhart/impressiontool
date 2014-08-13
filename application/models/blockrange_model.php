@@ -50,7 +50,7 @@ class Blockrange_model extends CI_Model {
 		if (count($query) > 0) {
 			return $query[0]->status;
 		}
-		return 0;
+		return -1;
 	}
 
 }

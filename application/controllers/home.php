@@ -38,26 +38,36 @@ class Home extends CI_Controller {
 						$tempResultWhois['ip_block_name'] = '';
 						$tempResultWhois['ip_block_range'] = '';
 						$tempResultWhois['ip_block_owner'] = '';
-						if(isset($whois['regrinfo']['network']['name']))
+						if (isset($whois['regrinfo']['network']['name']))
 							$tempResultWhois['ip_block_name'] = $whois['regrinfo']['network']['name'];
-						if(isset($whois['regrinfo']['network']['inetnum']))
+						if (isset($whois['regrinfo']['network']['inetnum']))
 							$tempResultWhois['ip_block_range'] = $whois['regrinfo']['network']['inetnum'];
-						if(isset($whois['regrinfo']['owner']['organization']))
+						if (isset($whois['regrinfo']['owner']['organization']))
 							$tempResultWhois['ip_block_owner'] = $whois['regrinfo']['owner']['organization'];
-						
+
 						//check with three owner
-						if(isset($whois['regrinfo']['network'][0]['name']))
+						if (isset($whois['regrinfo']['network'][0]['name']))
 							$tempResultWhois['ip_block_name'] = $whois['regrinfo']['network'][0]['name'];
-						if(isset($whois['regrinfo']['network'][0]['inetnum']))
+						if (isset($whois['regrinfo']['network'][0]['inetnum']))
 							$tempResultWhois['ip_block_range'] = $whois['regrinfo']['network'][0]['inetnum'];
-						if(isset($whois['regrinfo']['owner'][0]))
+						if (isset($whois['regrinfo']['owner'][0]))
 							$tempResultWhois['ip_block_owner'] = $whois['regrinfo']['owner'][0]['organization'];
 						//check black list or white list from owner, name, range
+						$checkStatus = -1;
 						$tempResultWhois['whois_status'] = $this->Blockowner_model->getStatus($tempResultWhois['ip_block_owner']);
-						if ($tempResultWhois['whois_status'] == 0) { //owner is white
+						if ($tempResultWhois['whois_status'] != 0) { //owner is white
+							if ($tempResultWhois['whois_status'] == 1) {
+								$checkStatus = 1;
+							}
 							$tempResultWhois['whois_status'] = $this->Blockrange_model->getStatus($tempResultWhois['ip_block_range']);
-							if ($tempResultWhois['whois_status'] == 0) { //owner is white
+							if ($tempResultWhois['whois_status'] != 0) { //owner is white
+								if ($tempResultWhois['whois_status'] == 1) {
+									$checkStatus = 1;
+								}
 								$tempResultWhois['whois_status'] = $this->Blockname_model->getStatus($tempResultWhois['ip_block_name']);
+								if ($tempResultWhois['whois_status'] == -1) {
+									$tempResultWhois['whois_status'] = $checkStatus;
+								}
 							}
 						}
 						//insert lookup result
@@ -71,11 +81,21 @@ class Home extends CI_Controller {
 						$tempResultWhois['ip_block_range'] = $lookup->ip_block_range;
 						$tempResultWhois['ip_block_owner'] = $lookup->ip_block_owner;
 						//check black list or white list from owner, name, range
+						$checkStatus = -1;
 						$tempResultWhois['whois_status'] = $this->Blockowner_model->getStatus($tempResultWhois['ip_block_owner']);
-						if ($tempResultWhois['whois_status'] == 0) { //owner is white
+						if ($tempResultWhois['whois_status'] != 0) { //owner is white
+							if ($tempResultWhois['whois_status'] == 1) {
+								$checkStatus = 1;
+							}
 							$tempResultWhois['whois_status'] = $this->Blockrange_model->getStatus($tempResultWhois['ip_block_range']);
-							if ($tempResultWhois['whois_status'] == 0) { //owner is white
+							if ($tempResultWhois['whois_status'] != 0) { //owner is white
+								if ($tempResultWhois['whois_status'] == 1) {
+									$checkStatus = 1;
+								}
 								$tempResultWhois['whois_status'] = $this->Blockname_model->getStatus($tempResultWhois['ip_block_name']);
+								if ($tempResultWhois['whois_status'] == -1) {
+									$tempResultWhois['whois_status'] = $checkStatus;
+								}
 							}
 						}
 						$resultWhois[] = $tempResultWhois;

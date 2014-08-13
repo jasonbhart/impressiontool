@@ -15,18 +15,38 @@
                 </div>
                 <div class="col-md-8">
                     <h1 class="text-center"> Impression Tool</h1>
-                    <form role="form" onclick="return submitListIps()" method="post">
+                    <form role="form" onsubmit="return submitListIps()" method="post">
                         <div class="form-group">
                             <label for="ipAddress">List of Ips</label>
                             <textarea rows="8" name="ipAddress" id="ipAddress" class="form-control"><?php if (isset($_POST['ipAddress'])) echo htmlspecialchars(trim($_POST['ipAddress'])); ?></textarea>
                         </div>
-                        <button type="submit" class="btn btn-default">Submit</button>
+                        <button type="submit" class="btn btn-default">Lookup</button>
+						<button onclick="$('.export-container').show();" type="button" class="btn btn-default">Export</button>
                     </form>
                 </div>
                 <div class="col-md-2">
 
                 </div>
             </div>
+			<div class="row export-container" style="display: none">
+				<div class="col-md-2">
+
+                </div>
+				<div class="col-md-8">
+					<h3 class="text-center">Export the result</h3>
+					<form role="form" method="post" onsubmit="return submitExport()">
+						<div class="form-group">
+							<label for="email">Email</label>
+							<input type="hidden" name="ips" id="ipsExport">
+							<input type="email" name="email" id="emailUser">
+						</div>
+						<button type="submit" class="btn btn-default">Get export by email</button>
+					</form>
+                </div>
+				<div class="col-md-2">
+
+                </div>
+			</div>
             <div class="row">
                 <div class="col-md-2">
 
@@ -60,6 +80,26 @@
 						var currentPackage = 0;
 						var currentResult = 0;
 						var isLookup = false;
+						function submitExport() {
+							$('#ipsExport').val($('#ipAddress').val().trim());
+							$.ajax({
+								type: 'post',
+								url: '<?php echo base_url('index.php/home/ajax'); ?>',
+								data: {
+									'action': 'addExportJob',
+									'ips': $('#ipsExport').val(),
+									'email': $('#emailUser').val()
+								},
+								success: function(msg) {
+									alert('We will send the export file to your email.');
+									$('.export-container').hide();	
+								},
+								error: function() {
+
+								}
+							});
+							return false;
+						}
 						function submitListIps() {
 							ipPackages = [];
 							currentPackage = 0;
@@ -177,18 +217,18 @@
 						});
         </script>
         <!-- Modal -->
-        <div class="modal fade" id="addToList" tabindex="-1" role="dialog" aria-labelledby="addToListBlockName" aria-hidden="true">
+        <div class="modal fade" id="addToListBlockName" tabindex="-1" role="dialog" aria-labelledby="addToListBlockName" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                        <h4 class="modal-title" id="myModalLabel">Whois</h4>
+                        <h4 class="modal-title" id="myModalLabel">Ip block name</h4>
                     </div>
                     <form onsubmit="return submitEditForm(this)" role="form" method="post" action="<?php echo base_url('index.php/home/ajax'); ?>">
                         <div class="modal-body">
-                            <p> Choose a list</p>
-                            <input type="hidden" name="whois" id="whois">
-                            <input type="hidden" name="action" value="editWhois">
+                            <p> Choose list for the ip block name</p>
+                            <input type="hidden" name="ip_block_name" id="ip-block-name">
+                            <input type="hidden" name="action" value="editBlockName">
                             <div class="form-group">
 
                                 <select name="status" class="form-control blockname-status">

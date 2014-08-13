@@ -44,12 +44,34 @@ class Blockname_model extends CI_Model {
     }
 	
 	//get status of a whois
-	function getStatus($ip_block_name) {
-		$query = $this->db->get_where($this->getTable(), array('ip_block_name' => $ip_block_name))->result();
-		if (count($query) > 0) {
-			return $query[0]->status;
+	function getStatus($ip_block_name, $list) {
+		$status = -1;
+		if (isset($list[1])) { //black list
+			foreach ($list[1] as $item) {
+				if (strpos($ip_block_name, $item) !== false) {
+					$status = 1;
+					break;
+				}
+			}
 		}
-		return -1;
+		if (isset($list[0])) { //black list
+			foreach ($list[0] as $item) {
+				if (strpos($ip_block_name, $item) !== false) {
+					$status = 0;
+					break;
+				}
+			}
+		}
+		return $status;
+	}
+	
+	function getAllList() {
+		$list = array();
+		$query = $this->db->get($this->getTable())->result();
+		foreach ($query as $item) {
+			$list[$item->status][] = $item->ip_block_name;
+		}
+		return $list;
 	}
 
 }

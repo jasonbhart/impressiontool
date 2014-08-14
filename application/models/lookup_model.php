@@ -26,7 +26,8 @@ class Lookup_model extends CI_Model {
 		}
 		return 0;
 	}
-
+	
+	//get look up list from database
 	function getLookupList($listIps = array()) {
 		$result = array();
 		$this->db->where_in('ip', $listIps);

@@ -74,147 +74,148 @@
             </div>
         </div>
         <script>
-						var active_select = '';
-						var active_field;
-						var ipPackages = [];
-						var currentPackage = 0;
-						var currentResult = 0;
-						var isLookup = false;
-						function submitExport() {
-							$('#ipsExport').val($('#ipAddress').val().trim());
-							$.ajax({
-								type: 'post',
-								url: '<?php echo base_url('index.php/home/ajax'); ?>',
-								data: {
-									'action': 'addExportJob',
-									'ips': $('#ipsExport').val(),
-									'email': $('#emailUser').val()
-								},
-								success: function(msg) {
-									alert('We will send the export file to your email.');
-									$('.export-container').hide();	
-								},
-								error: function() {
+		var active_select = '';
+		var active_field;
+		var ipPackages = [];
+		var currentPackage = 0; //the current package of ip list
+		var currentResult = 0; //number of result is on result table
+		var isLookup = false; //flag of ajax Lookup
+		function submitExport() {
+			$('#ipsExport').val($('#ipAddress').val().trim());
+			$.ajax({
+				type: 'post',
+				url: '<?php echo base_url('index.php/home/ajax'); ?>',
+				data: {
+					'action': 'addExportJob',
+					'ips': $('#ipsExport').val(),
+					'email': $('#emailUser').val()
+				},
+				success: function(msg) {
+					alert('We will send the export file to your email.');
+					$('.export-container').hide();	
+				},
+				error: function() {
 
-								}
-							});
-							return false;
-						}
-						function submitListIps() {
-							ipPackages = [];
-							currentPackage = 0;
-							currentResult = 0;
-							$('.lookup-result tbody').html('');
-							var ips = $('#ipAddress').val().trim();
-							if (ips.length == "") {
-								return false;
-							}
-							ips = ips.split("\n");
-							var itemsPerSmallerArr = 10;
-							var count = 0;
-							var tmpArr = [];
-							for (i = 0; i < ips.length; i++) {
-								if (count < itemsPerSmallerArr)
-								{
-									tmpArr.push(ips[i]);
-								}
-								else
-								{
-									ipPackages.push(tmpArr);
-									count = 0;
-									tmpArr = [];
-									tmpArr.push(ips[i]);
-								}
-								count++;
-							}
-							;
-							ipPackages.push(tmpArr);
-							ajaxLookup();
-							return false;
-						}
-						function ajaxLookup() {
-							$('#loading-data').show();
-							if (!isLookup) {
-								isLookup = true;
-								$.ajax({
-									type: 'post',
-									url: '<?php echo base_url('index.php/home/ajax'); ?>',
-									data: {
-										'action': 'getLookup',
-										'ipAddress': ipPackages[currentPackage].join('\n'),
-										'currentResult': currentResult
-									},
-									success: function(msg) {
-										$('.lookup-result tbody').append(msg);
-										currentResult = $('.lookup-result tr').length;
-										$('#loading-data').hide();
-										isLookup = false;
-									},
-									error: function() {
+				}
+			});
+			return false;
+		}
+		function submitListIps() {
+			ipPackages = [];
+			currentPackage = 0;
+			currentResult = 0;
+			$('.lookup-result tbody').html('');
+			var ips = $('#ipAddress').val().trim();
+			if (ips.length == "") {
+				return false;
+			}
+			ips = ips.split("\n");
+			var itemsPerSmallerArr = 10;
+			var count = 0;
+			var tmpArr = [];
+			//divide the list ip to small package 
+			for (i = 0; i < ips.length; i++) {
+				if (count < itemsPerSmallerArr)
+				{
+					tmpArr.push(ips[i]); //push ip to temp array
+				}
+				else
+				{
+					ipPackages.push(tmpArr); // push temp array to ipPackages
+					count = 0;
+					tmpArr = [];
+					tmpArr.push(ips[i]);
+				}
+				count++;
+			};
+			ipPackages.push(tmpArr);
+			//start lookup
+			ajaxLookup();
+			return false;
+		}
+		function ajaxLookup() {
+			$('#loading-data').show();
+			if (!isLookup) {
+				isLookup = true;
+				$.ajax({
+					type: 'post',
+					url: '<?php echo base_url('index.php/home/ajax'); ?>',
+					data: {
+						'action': 'getLookup',
+						'ipAddress': ipPackages[currentPackage].join('\n'),
+						'currentResult': currentResult
+					},
+					success: function(msg) {
+						$('.lookup-result tbody').append(msg);
+						currentResult = $('.lookup-result tr').length;
+						$('#loading-data').hide();
+						isLookup = false;
+					},
+					error: function() {
 
-									}
-								});
-							}
+					}
+				});
+			}
+		}
+		function setDataToEditBlockName(field, data) {
+			$('#ip-block-name').val(data);
+			active_select = 'blockname-status';
+			active_field = field;
+		}
+		function setDataToEditBlockRange(field, data) {
+			$('#ip-block-range').val(data);
+			active_select = 'blockrange-status';
+			active_field = field;
+		}
+		function setDataToEditBlockOwner(field, data) {
+			$('#ip-block-owner').val(data);
+			active_select = 'blockowner-status';
+			active_field = field;
+		}
+		function submitEditForm(form) {
+			$.ajax({
+				type: $(form).attr('method'),
+				url: $(form).attr('action'),
+				data: $(form).serialize(),
+				success: function(msg) {
+					if (msg == 1) {
+						var list_class;
+						if ($('.' + active_select + ' :selected').val() == 1) {
+							list_class = 'black';
 						}
-						function setDataToEditBlockName(field, data) {
-							$('#ip-block-name').val(data);
-							active_select = 'blockname-status';
-							active_field = field;
+						;
+						if ($('.' + active_select + ' :selected').val() == 0) {
+							list_class = 'white';
 						}
-						function setDataToEditBlockRange(field, data) {
-							$('#ip-block-range').val(data);
-							active_select = 'blockrange-status';
-							active_field = field;
-						}
-						function setDataToEditBlockOwner(field, data) {
-							$('#ip-block-owner').val(data);
-							active_select = 'blockowner-status';
-							active_field = field;
-						}
-						function submitEditForm(form) {
-							$.ajax({
-								type: $(form).attr('method'),
-								url: $(form).attr('action'),
-								data: $(form).serialize(),
-								success: function(msg) {
-									if (msg == 1) {
-										var list_class;
-										if ($('.' + active_select + ' :selected').val() == 1) {
-											list_class = 'black';
-										}
-										;
-										if ($('.' + active_select + ' :selected').val() == 0) {
-											list_class = 'white';
-										}
-										;
-										$(active_field).removeClass('black');
-										$(active_field).removeClass('white');
-										$(active_field).removeClass('notwhois');
-										$(active_field).addClass(list_class);
-										$('.modal').modal('hide');
-									}
-									else {
-										alert('error');
-									}
-								},
-								error: function() {
+						;
+						$(active_field).removeClass('black');
+						$(active_field).removeClass('white');
+						$(active_field).removeClass('notwhois');
+						$(active_field).addClass(list_class);
+						$('.modal').modal('hide');
+					}
+					else {
+						alert('error');
+					}
+				},
+				error: function() {
 
 
 
-								}
-							});
-							return false;
-						}
-						//check user go to bottom make a new data
-						$(window).scroll(function() {
-							if ($(window).scrollTop() + window.innerHeight == $(document).height()) {
-								currentPackage++;
-								if (currentPackage >= ipPackages.length) {
-									return;
-								}
-								ajaxLookup();
-							}
-						});
+				}
+			});
+			return false;
+		}
+		//check user go to bottom make a new data
+		$(window).scroll(function() {
+			if ($(window).scrollTop() + window.innerHeight == $(document).height()) {
+				currentPackage++;
+				if (currentPackage >= ipPackages.length) {
+					return;
+				}
+				ajaxLookup();
+			}
+		});
         </script>
         <!-- Modal -->
         <div class="modal fade" id="addToListBlockName" tabindex="-1" role="dialog" aria-labelledby="addToListBlockName" aria-hidden="true">

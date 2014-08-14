@@ -31,7 +31,6 @@ class Userexport_model extends CI_Model {
 	
 	function updateJob($id, $status) {
 		$this->status = $status;
-		
 		$this->db->update($this->getTable(), array('status' => $this->status), array('id' => $id));
 	}
 

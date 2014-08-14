@@ -7,7 +7,7 @@ class Cronjob extends CI_Controller {
 
 	public function createReport() {
 		$this->load->model('Userexport_model', '', TRUE);
-		$jobs = $this->Userexport_model->getJobs();
+		$jobs = $this->Userexport_model->getJobs(); // get all job with status = 0
 		foreach ($jobs as $job) {
 			$ipAddress = $job->ips;
 			$ipAddressArray = explode(PHP_EOL, trim($ipAddress));
@@ -21,13 +21,13 @@ class Cronjob extends CI_Controller {
 			$this->load->model('Blockname_model', '', TRUE);
 			$this->load->model('Blockrange_model', '', TRUE);
 			$this->load->model('Blockowner_model', '', TRUE);
-			$cacheLookups = $this->Lookup_model->getLookupList($ipAddressArray);
+			$cacheLookups = $this->Lookup_model->getLookupList($ipAddressArray); // get lookup of list ip from database
 			foreach ($ipAddressArray as $ip) {
 				$ip = trim($ip);
 				if ($phpwhois->whois->checkValidateIp($ip)) {
 					if (!isset($cacheLookups[$ip])) {
-						$rawWhois = $phpwhois->whois->Getipowner($ip);
-						sleep(1);
+						$rawWhois = $phpwhois->whois->Getipowner($ip); //ask arin for lookup
+						sleep(1); // stop 1 second to dont make we are bannded
 						foreach ($rawWhois as $whois) {
 							$tempResultWhois['ip'] = $ip;
 							$tempResultWhois['ip_block_name'] = '';
@@ -51,12 +51,12 @@ class Cronjob extends CI_Controller {
 							$checkStatus = -1;
 							$listOwner = $this->Blockowner_model->getAllList();
 							$tempResultWhois['whois_status'] = $this->Blockowner_model->getStatus($tempResultWhois['ip_block_owner'], $listOwner);
-							if ($tempResultWhois['whois_status'] != 0) { //owner is white
+							if ($tempResultWhois['whois_status'] != 0) { //owner is not white
 								if ($tempResultWhois['whois_status'] == 1) {
 									$checkStatus = 1;
 								}
 								$tempResultWhois['whois_status'] = $this->Blockrange_model->getStatus($tempResultWhois['ip_block_range']);
-								if ($tempResultWhois['whois_status'] != 0) { //owner is white
+								if ($tempResultWhois['whois_status'] != 0) { //range is not white
 									if ($tempResultWhois['whois_status'] == 1) {
 										$checkStatus = 1;
 									}
@@ -72,7 +72,7 @@ class Cronjob extends CI_Controller {
 							$resultWhois[] = $tempResultWhois;
 						}
 					} else {
-						foreach ($cacheLookups[$ip] as $lookup) {
+						foreach ($cacheLookups[$ip] as $lookup) { // ip is in database
 							$tempResultWhois['ip'] = $lookup->ip;
 							$tempResultWhois['ip_block_name'] = $lookup->ip_block_name;
 							$tempResultWhois['ip_block_range'] = $lookup->ip_block_range;
@@ -121,9 +121,9 @@ class Cronjob extends CI_Controller {
 			fclose($fopen);
 			//create sql file
 			$stringResultSQl = implode(',', $stringResultSQl) . ';';
-			$templateSQl = read_file('public/export_templates/sql.tpl');
-			$templateSQl = str_replace("#result#", $stringResult, $templateSQl);
-			write_file('public/exports/' . $fileName . '.sql', $templateSQl);
+			$templateSQl = read_file('public/export_templates/sql.tpl'); // read sql template file
+			$templateSQl = str_replace("#result#", $stringResult, $templateSQl); // push real data
+			write_file('public/exports/' . $fileName . '.sql', $templateSQl);  // create sql export file
 			
 			$this->load->library('email');
 
@@ -131,11 +131,11 @@ class Cronjob extends CI_Controller {
 			$this->email->to($job->email);
 
 			$this->email->subject('The export file');
-			$this->email->message('Testing the email class.');
+			$this->email->message('Testing the email class.'); // just a test message
 			$this->email->attach('public/exports/' . $fileName);
 
-			$this->email->send();
-			$this->Userexport_model->updateJob($job->id, 1);
+			$this->email->send(); //send email about the report to user
+			$this->Userexport_model->updateJob($job->id, 1); //update this job to 1 after done it
 			echo 'run job id : ' . $job->id . '<br/>';
 		}
 	}

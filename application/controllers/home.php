@@ -6,10 +6,6 @@ if (!defined('BASEPATH'))
 class Home extends CI_Controller {
 
 	public function index() {
-//		$this->load->library('phpwhois');
-//		$phpwhois = new Phpwhois();
-//		$rawWhois = $phpwhois->whois->Getipowner('107.146.50.242');
-//		print_r($rawWhois);die;
 		$viewData = array();
 		$this->load->view('home', $viewData);
 	}
@@ -30,9 +26,9 @@ class Home extends CI_Controller {
 		$cacheLookups = $this->Lookup_model->getLookupList($ipAddressArray);
 		foreach ($ipAddressArray as $ip) {
 			$ip = trim($ip);
-			if ($phpwhois->whois->checkValidateIp($ip)) {
-				if (!isset($cacheLookups[$ip])) {
-					$rawWhois = $phpwhois->whois->Getipowner($ip);
+			if ($phpwhois->whois->checkValidateIp($ip)) { // check ip is validate or not
+				if (!isset($cacheLookups[$ip])) { // if this ip have not in database so we will use arin to lookup
+					$rawWhois = $phpwhois->whois->Getipowner($ip); // lookup the ip
 					foreach ($rawWhois as $whois) {
 						$tempResultWhois['ip'] = $ip;
 						$tempResultWhois['ip_block_name'] = '';
@@ -54,18 +50,18 @@ class Home extends CI_Controller {
 							$tempResultWhois['ip_block_owner'] = $whois['regrinfo']['owner'][0]['organization'];
 						//check black list or white list from owner, name, range
 						$checkStatus = -1;
-						$listOwner = $this->Blockowner_model->getAllList();
+						$listOwner = $this->Blockowner_model->getAllList(); // list of black and white owner
 						$tempResultWhois['whois_status'] = $this->Blockowner_model->getStatus($tempResultWhois['ip_block_owner'], $listOwner);
-						if ($tempResultWhois['whois_status'] != 0) { //owner is white
+						if ($tempResultWhois['whois_status'] != 0) { //owner is not white
 							if ($tempResultWhois['whois_status'] == 1) {
 								$checkStatus = 1;
 							}
 							$tempResultWhois['whois_status'] = $this->Blockrange_model->getStatus($tempResultWhois['ip_block_range']);
-							if ($tempResultWhois['whois_status'] != 0) { //owner is white
+							if ($tempResultWhois['whois_status'] != 0) { //range is not white
 								if ($tempResultWhois['whois_status'] == 1) {
 									$checkStatus = 1;
 								}
-								$listName = $this->Blockname_model->getAllList();
+								$listName = $this->Blockname_model->getAllList(); // list of black and white name
 								$tempResultWhois['whois_status'] = $this->Blockname_model->getStatus($tempResultWhois['ip_block_name'], $listName);
 								if ($tempResultWhois['whois_status'] == -1) {
 									$tempResultWhois['whois_status'] = $checkStatus;
@@ -77,7 +73,7 @@ class Home extends CI_Controller {
 						$resultWhois[] = $tempResultWhois;
 					}
 				} else {
-					foreach ($cacheLookups[$ip] as $lookup) {
+					foreach ($cacheLookups[$ip] as $lookup) { // ip is in database
 						$tempResultWhois['ip'] = $lookup->ip;
 						$tempResultWhois['ip_block_name'] = $lookup->ip_block_name;
 						$tempResultWhois['ip_block_range'] = $lookup->ip_block_range;

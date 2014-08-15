@@ -220,6 +220,10 @@
 								if (currentPackage >= ipPackages.length) {
 									return;
 								}
+								if (currentResult > 50) {
+									$('#exportForm').modal('show');
+									return;
+								}
 								ajaxLookup();
 							}
 						});

@@ -131,7 +131,7 @@ class Createreport extends CI_Controller {
 
 				$this->load->library('email');
 				$this->email->clear();
-				$this->email->from('ndtuan89@gmail.com');
+				$this->email->from('info@ppcprotector.com');
 				$this->email->to($job->email);
 
 				$this->email->subject('The export file');

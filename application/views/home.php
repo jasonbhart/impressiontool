@@ -74,153 +74,155 @@
             </div>
         </div>
         <script>
-		var active_select = '';
-		var active_field;
-		var ipPackages = [];
-		var currentPackage = 0; //the current package of ip list
-		var currentResult = 0; //number of result is on result table
-		var isLookup = false; //flag of ajax Lookup
-		function submitExport() {
-			$('#ipsExport').val($('#ipAddress').val().trim());
-			$.ajax({
-				type: 'post',
-				url: '<?php echo base_url('index.php/home/ajax'); ?>',
-				data: {
-					'action': 'addExportJob',
-					'ips': $('#ipsExport').val(),
-					'email': $('#emailUser').val()
-				},
-				success: function(msg) {
-					alert('We will send the export file to your email.');
-					$('.export-container').hide();	
-				},
-				error: function() {
+						var active_select = '';
+						var active_field;
+						var ipPackages = [];
+						var currentPackage = 0; //the current package of ip list
+						var currentResult = 0; //number of result is on result table
+						var isLookup = false; //flag of ajax Lookup
+						function submitExport() {
+							$('#ipsExport').val($('#ipAddress').val().trim());
+							$.ajax({
+								type: 'post',
+								url: '<?php echo base_url('index.php/home/ajax'); ?>',
+								data: {
+									'action': 'addExportJob',
+									'ips': $('#ipsExport').val(),
+									'email': $('#emailUser').val()
+								},
+								success: function(msg) {
+									alert('We will send the export file to your email.');
+									$('.export-container').hide();
+									$('#exportForm').modal('hide');
+									currentPackage = 10000;
+								},
+								error: function() {
 
-				}
-			});
-			return false;
-		}
-		function submitListIps() {
-			ipPackages = [];
-			currentPackage = 0;
-			currentResult = 0;
-			$('.lookup-result tbody').html('');
-			var ips = $('#ipAddress').val().trim();
-			if (ips.length == "") {
-				return false;
-			}
-			ips = ips.split("\n");
-			if(ips.length > 50){
-				alert('To prevent abuse and limit the load on the server, please enter your email address to receive your report when we are done investigating the rest of your list');
-				return false;
-			}
-			var itemsPerSmallerArr = 10;
-			var count = 0;
-			var tmpArr = [];
-			//divide the list ip to small package 
-			for (i = 0; i < ips.length; i++) {
-				if (count < itemsPerSmallerArr)
-				{
-					tmpArr.push(ips[i]); //push ip to temp array
-				}
-				else
-				{
-					ipPackages.push(tmpArr); // push temp array to ipPackages
-					count = 0;
-					tmpArr = [];
-					tmpArr.push(ips[i]);
-				}
-				count++;
-			};
-			ipPackages.push(tmpArr);
-			//start lookup
-			ajaxLookup();
-			return false;
-		}
-		function ajaxLookup() {
-			$('#loading-data').show();
-			if (!isLookup) {
-				isLookup = true;
-				$.ajax({
-					type: 'post',
-					url: '<?php echo base_url('index.php/home/ajax'); ?>',
-					data: {
-						'action': 'getLookup',
-						'ipAddress': ipPackages[currentPackage].join('\n'),
-						'currentResult': currentResult
-					},
-					success: function(msg) {
-						$('.result-container').show();
-						$('.lookup-result tbody').append(msg);
-						currentResult = $('.lookup-result tr').length;
-						$('#loading-data').hide();
-						isLookup = false;
-					},
-					error: function() {
-
-					}
-				});
-			}
-		}
-		function setDataToEditBlockName(field, data) {
-			$('#ip-block-name').val(data);
-			active_select = 'blockname-status';
-			active_field = field;
-		}
-		function setDataToEditBlockRange(field, data) {
-			$('#ip-block-range').val(data);
-			active_select = 'blockrange-status';
-			active_field = field;
-		}
-		function setDataToEditBlockOwner(field, data) {
-			$('#ip-block-owner').val(data);
-			active_select = 'blockowner-status';
-			active_field = field;
-		}
-		function submitEditForm(form) {
-			$.ajax({
-				type: $(form).attr('method'),
-				url: $(form).attr('action'),
-				data: $(form).serialize(),
-				success: function(msg) {
-					if (msg == 1) {
-						var list_class;
-						if ($('.' + active_select + ' :selected').val() == 1) {
-							list_class = 'black';
+								}
+							});
+							return false;
 						}
-						;
-						if ($('.' + active_select + ' :selected').val() == 0) {
-							list_class = 'white';
+						function submitListIps() {
+							ipPackages = [];
+							currentPackage = 0;
+							currentResult = 0;
+							$('.lookup-result tbody').html('');
+							var ips = $('#ipAddress').val().trim();
+							if (ips.length == "") {
+								return false;
+							}
+							ips = ips.split("\n");
+							var itemsPerSmallerArr = 10;
+							var count = 0;
+							var tmpArr = [];
+							//divide the list ip to small package 
+							for (i = 0; i < ips.length; i++) {
+								if (count < itemsPerSmallerArr)
+								{
+									tmpArr.push(ips[i]); //push ip to temp array
+								}
+								else
+								{
+									ipPackages.push(tmpArr); // push temp array to ipPackages
+									count = 0;
+									tmpArr = [];
+									tmpArr.push(ips[i]);
+								}
+								count++;
+							}
+							;
+							ipPackages.push(tmpArr);
+							//start lookup
+							ajaxLookup();
+							return false;
 						}
-						;
-						$(active_field).removeClass('black');
-						$(active_field).removeClass('white');
-						$(active_field).removeClass('notwhois');
-						$(active_field).addClass(list_class);
-						$('.modal').modal('hide');
-					}
-					else {
-						alert('error');
-					}
-				},
-				error: function() {
+						function ajaxLookup() {
+							$('#loading-data').show();
+							if (!isLookup) {
+								isLookup = true;
+								$.ajax({
+									type: 'post',
+									url: '<?php echo base_url('index.php/home/ajax'); ?>',
+									data: {
+										'action': 'getLookup',
+										'ipAddress': ipPackages[currentPackage].join('\n'),
+										'currentResult': currentResult
+									},
+									success: function(msg) {
+										$('.result-container').show();
+										$('.lookup-result tbody').append(msg);
+										currentResult = $('.lookup-result tr').length;
+										if (currentResult > 50) {
+											$('#exportForm').modal('show');
+										}
+										$('#loading-data').hide();
+										isLookup = false;
+									},
+									error: function() {
+
+									}
+								});
+							}
+						}
+						function setDataToEditBlockName(field, data) {
+							$('#ip-block-name').val(data);
+							active_select = 'blockname-status';
+							active_field = field;
+						}
+						function setDataToEditBlockRange(field, data) {
+							$('#ip-block-range').val(data);
+							active_select = 'blockrange-status';
+							active_field = field;
+						}
+						function setDataToEditBlockOwner(field, data) {
+							$('#ip-block-owner').val(data);
+							active_select = 'blockowner-status';
+							active_field = field;
+						}
+						function submitEditForm(form) {
+							$.ajax({
+								type: $(form).attr('method'),
+								url: $(form).attr('action'),
+								data: $(form).serialize(),
+								success: function(msg) {
+									if (msg == 1) {
+										var list_class;
+										if ($('.' + active_select + ' :selected').val() == 1) {
+											list_class = 'black';
+										}
+										;
+										if ($('.' + active_select + ' :selected').val() == 0) {
+											list_class = 'white';
+										}
+										;
+										$(active_field).removeClass('black');
+										$(active_field).removeClass('white');
+										$(active_field).removeClass('notwhois');
+										$(active_field).addClass(list_class);
+										$('.modal').modal('hide');
+									}
+									else {
+										alert('error');
+									}
+								},
+								error: function() {
 
 
 
-				}
-			});
-			return false;
-		}
-		//check user go to bottom make a new data
-		$(window).scroll(function() {
-			if ($(window).scrollTop() + window.innerHeight == $(document).height()) {
-				currentPackage++;
-				if (currentPackage >= ipPackages.length) {
-					return;
-				}
-				ajaxLookup();
-			}
-		});
+								}
+							});
+							return false;
+						}
+						//check user go to bottom make a new data
+						$(window).scroll(function() {
+							if ($(window).scrollTop() + window.innerHeight == $(document).height()) {
+								currentPackage++;
+								if (currentPackage >= ipPackages.length) {
+									return;
+								}
+								ajaxLookup();
+							}
+						});
         </script>
         <!-- Modal -->
         <div class="modal fade" id="addToListBlockName" tabindex="-1" role="dialog" aria-labelledby="addToListBlockName" aria-hidden="true">
@@ -305,6 +307,32 @@
                             <button type="submit" class="btn btn-primary">Save changes</button>
                         </div>
                     </form>
+                </div>
+            </div>
+        </div>
+
+		<!-- export field modal -->
+		<div class="modal fade" id="exportForm" tabindex="-1" role="dialog" aria-labelledby="exportForm" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                        <h4 class="modal-title" id="myModalLabel">Export the result</h4>
+                    </div>
+					<form role="form" method="post" onsubmit="return submitExport()">
+						<div class="modal-body">
+                            <p>To prevent abuse and limit the load on the server, please enter your email address to receive your report when we are done investigating the rest of your list</p>
+                            <div class="form-group">
+								<label for="email">Email</label>
+								<input type="hidden" name="ips" id="ipsExport">
+								<input type="email" name="email" id="emailUser">
+							</div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Get export by email</button>
+                        </div>
+					</form>
                 </div>
             </div>
         </div>

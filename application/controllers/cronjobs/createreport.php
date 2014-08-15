@@ -112,6 +112,12 @@ class Createreport extends CI_Controller {
 				$count = 1;
 				$fileName = md5($job->email) . '_report';
 				//create csv file
+				if (file_exists('public/exports/' . $fileName . '.csv')) { //remove old file
+					delete_files('public/exports/' . $fileName . '.csv');
+				}
+				if (file_exists('public/exports/' . $fileName . '.sql')) { //remove old file
+					delete_files('public/exports/' . $fileName . '.sql');
+				}
 				$fopen = fopen('public/exports/' . $fileName . '.csv', 'w+');
 				foreach ($resultWhois as $result) {
 					if ($result['whois_status'] == 0 || $result['whois_status'] == -1) {

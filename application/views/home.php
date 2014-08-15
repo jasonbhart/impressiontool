@@ -153,6 +153,11 @@
 										$('.lookup-result tbody').append(msg);
 										currentResult = $('.lookup-result tr').length;
 										if (currentResult > 50) {
+											$('.lookup-result tr').each(function(index, element) {
+												if (index+1 > 50) {
+													$(this).remove();
+												}
+											})
 											$('#exportForm').modal('show');
 										}
 										$('#loading-data').hide();

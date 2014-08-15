@@ -158,7 +158,6 @@
 													$(this).remove();
 												}
 											})
-											$('#exportForm').modal('show');
 										}
 										$('#loading-data').hide();
 										isLookup = false;

@@ -51,7 +51,7 @@
                 <div class="col-md-2">
 
                 </div>
-                <div class="col-md-8">
+                <div class="col-md-8 result-container" style="display: none;">
 					<h3 class="text-center"> Result</h3>
 					<table class="lookup-result table">
 						<thead>
@@ -110,6 +110,10 @@
 				return false;
 			}
 			ips = ips.split("\n");
+			if(ips.length > 50){
+				alert('To prevent abuse and limit the load on the server, please enter your email address to receive your report when we are done investigating the rest of your list');
+				return false;
+			}
 			var itemsPerSmallerArr = 10;
 			var count = 0;
 			var tmpArr = [];
@@ -146,6 +150,7 @@
 						'currentResult': currentResult
 					},
 					success: function(msg) {
+						$('.result-container').show();
 						$('.lookup-result tbody').append(msg);
 						currentResult = $('.lookup-result tr').length;
 						$('#loading-data').hide();

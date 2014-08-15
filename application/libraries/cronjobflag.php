@@ -11,18 +11,18 @@ class CronjobFlag
     
     function checkCronjobFlag($cronjobName)
     {
-        if (file_exists('tmp/cronjobflag')) {
+        if (file_exists('/tmp/cronjobflag')) {
             return FALSE;
         } else {
-            write_file('tmp/cronjobflag', $cronjobName);
+            write_file('/tmp/cronjobflag', $cronjobName);
             return TRUE;
         }
     }
     
     function removeCronjobFlag()
     {
-        if (file_exists('tmp/cronjobflag')) {
-            unlink('tmp/cronjobflag');
+        if (file_exists('/tmp/cronjobflag')) {
+            unlink('/tmp/cronjobflag');
         }
         return TRUE;
     }

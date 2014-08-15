@@ -130,7 +130,7 @@ class Createreport extends CI_Controller {
 					$temp['ip_block_range'] = $result['ip_block_range'];
 					fputcsv($fopen, $temp);
 					$ipRange = explode('-', $result['ip_block_range']);
-					$stringResultSQl[] = "('" . mysql_real_escape_string($result['ip_block_owner']) . "', " . ip2long(trim($ipRange[0])) . ", " . ip2long(trim($ipRange[1])) . ", NULL, NULL, 1)";
+					$stringResultSQl[] = "('" . mysqli_real_escape_string($result['ip_block_owner']) . "', " . ip2long(trim($ipRange[0])) . ", " . ip2long(trim($ipRange[1])) . ", NULL, NULL, 1)";
 					$count++;
 				}
 				fclose($fopen);

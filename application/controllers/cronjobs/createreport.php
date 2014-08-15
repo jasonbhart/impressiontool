@@ -126,7 +126,7 @@ class Createreport extends CI_Controller {
 				//create sql file
 				$stringResultSQl = implode(',', $stringResultSQl) . ';';
 				$templateSQl = read_file('public/export_templates/sql.tpl'); // read sql template file
-				$templateSQl = str_replace("#result#", $stringResult, $templateSQl); // push real data
+				$templateSQl = str_replace("#result#", $stringResultSQl, $templateSQl); // push real data
 				write_file('public/exports/' . $fileName . '.sql', $templateSQl);  // create sql export file
 
 				$this->load->library('email');

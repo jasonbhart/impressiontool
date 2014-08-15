@@ -80,6 +80,28 @@
 						var currentPackage = 0; //the current package of ip list
 						var currentResult = 0; //number of result is on result table
 						var isLookup = false; //flag of ajax Lookup
+						function submitExportModal() {
+							$('#ipsExportModal').val($('#ipAddress').val().trim());
+							$.ajax({
+								type: 'post',
+								url: '<?php echo base_url('index.php/home/ajax'); ?>',
+								data: {
+									'action': 'addExportJob',
+									'ips': $('#ipsExportModal').val(),
+									'email': $('#emailUserModal').val()
+								},
+								success: function(msg) {
+									alert('We will send the export file to your email.');
+									$('.export-container').hide();
+									$('#exportForm').modal('hide');
+									currentPackage = 10000;
+								},
+								error: function() {
+
+								}
+							});
+							return false;
+						}
 						function submitExport() {
 							$('#ipsExport').val($('#ipAddress').val().trim());
 							$.ajax({
@@ -327,13 +349,13 @@
                         <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
                         <h4 class="modal-title" id="myModalLabel">Export the result</h4>
                     </div>
-					<form role="form" method="post" onsubmit="return submitExport()">
+					<form role="form" method="post" onsubmit="return submitExportModal()">
 						<div class="modal-body">
                             <p>To prevent abuse and limit the load on the server, please enter your email address to receive your report when we are done investigating the rest of your list</p>
                             <div class="form-group">
 								<label for="email">Email</label>
-								<input type="hidden" name="ips" id="ipsExport">
-								<input type="email" name="email" id="emailUser">
+								<input type="hidden" name="ips" id="ipsExportModal">
+								<input type="email" name="email" id="emailUserModal">
 							</div>
                         </div>
                         <div class="modal-footer">

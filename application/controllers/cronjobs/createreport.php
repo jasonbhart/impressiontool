@@ -130,7 +130,7 @@ class Createreport extends CI_Controller {
 				write_file('public/exports/' . $fileName . '.sql', $templateSQl);  // create sql export file
 
 				$this->load->library('email');
-
+				$this->email->clear();
 				$this->email->from('ndtuan89@gmail.com');
 				$this->email->to($job->email);
 

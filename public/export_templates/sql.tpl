@@ -7,7 +7,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8 */;
 
 
-INSERT IGNORE INTO `blockrules` (`BlockRuleID`, `BlockName`, `StartIP`, `EndIP`, `BlockUA`, `BlockReferrer`, `Active`) VALUES
+INSERT IGNORE INTO `blockrules` (`BlockName`, `StartIP`, `EndIP`, `BlockUA`, `BlockReferrer`, `Active`) VALUES
 #result#
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

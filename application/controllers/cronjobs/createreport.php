@@ -117,9 +117,14 @@ class Createreport extends CI_Controller {
 					if ($result['whois_status'] == 0 || $result['whois_status'] == -1) {
 						continue;
 					}
-					fputcsv($fopen, $result);
+					$temp = array();
+					$temp['ip'] = $result['ip'];
+					$temp['ip_block_owner'] = $result['ip_block_owner'];
+					$temp['ip_block_name'] = $result['ip_block_name'];
+					$temp['ip_block_range'] = $result['ip_block_range'];
+					fputcsv($fopen, $temp);
 					$ipRange = explode('-', $result['ip_block_range']);
-					$stringResultSQl[] = "($count,'" . mysql_real_escape_string($result['ip_block_owner'] . "|" . $result['ip_block_name']) . "', " . ip2long(trim($ipRange[0])) . ", " . ip2long(trim($ipRange[1])) . ", NULL, NULL, 1)";
+					$stringResultSQl[] = "('" . mysql_real_escape_string($result['ip_block_owner']) . "', " . ip2long(trim($ipRange[0])) . ", " . ip2long(trim($ipRange[1])) . ", NULL, NULL, 1)";
 					$count++;
 				}
 				fclose($fopen);

@@ -114,7 +114,7 @@ class Createreport extends CI_Controller {
 				//create csv file
 				$fopen = fopen('public/exports/' . $fileName . '.csv', 'w+');
 				foreach ($resultWhois as $result) {
-					if ($result['whois_status'] == 0) {
+					if ($result['whois_status'] == 0 || $result['whois_status'] == -1) {
 						continue;
 					}
 					fputcsv($fopen, $result);

@@ -136,7 +136,8 @@ class Createreport extends CI_Controller {
 
 				$this->email->subject('The export file');
 				$this->email->message('Testing the email class.'); // just a test message
-				$this->email->attach('public/exports/' . $fileName);
+				$this->email->attach('public/exports/' . $fileName . '.sql');
+				$this->email->attach('public/exports/' . $fileName . '.csv');
 
 				$this->email->send(); //send email about the report to user
 				$this->Userexport_model->updateJob($job->id, 1); //update this job to 1 after done it

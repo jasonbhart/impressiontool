@@ -139,8 +139,8 @@ class Createreport extends CI_Controller {
 				$this->email->from('info@ppcprotector.com');
 				$this->email->to($job->email);
 
-				$this->email->subject('The export file');
-				$this->email->message('Testing the email class.'); // just a test message
+				$this->email->subject('PPCProtector block suggestions');
+				$this->email->message('Here is what we recommend you block.'); // just a test message
 				$this->email->attach('public/exports/' . $fileName . '.sql');
 				$this->email->attach('public/exports/' . $fileName . '.csv');
 

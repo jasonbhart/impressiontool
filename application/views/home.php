@@ -104,6 +104,12 @@
 						}
 						function submitExport() {
 							$('#ipsExport').val($('#ipAddress').val().trim());
+							var ips = $('#ipAddress').val().trim();
+							ips = ips.split("\n");
+							if(ips.length > 1000){
+								alert('To ensure reports are generated quickly, we must limit each report to 1000 IP addresses or less.');
+								return false;
+							}
 							$.ajax({
 								type: 'post',
 								url: '<?php echo base_url('index.php/home/ajax'); ?>',
@@ -134,6 +140,10 @@
 								return false;
 							}
 							ips = ips.split("\n");
+							if(ips.length > 1000){
+								alert('To ensure reports are generated quickly, we must limit each report to 1000 IP addresses or less.');
+								return false;
+							}
 							var itemsPerSmallerArr = 10;
 							var count = 0;
 							var tmpArr = [];

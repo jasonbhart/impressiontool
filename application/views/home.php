@@ -82,6 +82,10 @@
 						var isLookup = false; //flag of ajax Lookup
 						function submitExportModal() {
 							$('#ipsExportModal').val($('#ipAddress').val().trim());
+							if (!validateEmail($('#emailUserModal').val())) {
+								alert('Email is not correct.')
+								return false;
+							}
 							$.ajax({
 								type: 'post',
 								url: '<?php echo base_url('index.php/home/ajax'); ?>',
@@ -102,12 +106,21 @@
 							});
 							return false;
 						}
+						function validateEmail(email)
+						{
+							var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+							return email.match(re)
+						}
 						function submitExport() {
 							$('#ipsExport').val($('#ipAddress').val().trim());
 							var ips = $('#ipAddress').val().trim();
 							ips = ips.split("\n");
-							if(ips.length > 1000){
+							if (ips.length > 1000) {
 								alert('To ensure reports are generated quickly, we must limit each report to 1000 IP addresses or less.');
+								return false;
+							}
+							if (!validateEmail($('#emailUser').val())) {
+								alert('Email is not correct.')
 								return false;
 							}
 							$.ajax({
@@ -140,7 +153,7 @@
 								return false;
 							}
 							ips = ips.split("\n");
-							if(ips.length > 1000){
+							if (ips.length > 1000) {
 								alert('To ensure reports are generated quickly, we must limit each report to 1000 IP addresses or less.');
 								return false;
 							}
@@ -188,7 +201,7 @@
 										currentResult = $('.lookup-result tr').length;
 										if (currentResult > 50) {
 											$('.lookup-result tr').each(function(index, element) {
-												if (index+1 > 50) {
+												if (index + 1 > 50) {
 													$(this).remove();
 												}
 											})

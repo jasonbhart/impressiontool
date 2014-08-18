@@ -144,6 +144,8 @@
 								alert('To ensure reports are generated quickly, we must limit each report to 1000 IP addresses or less.');
 								return false;
 							}
+							$('.result-container').show();
+							$('#loading-data').show();
 							var itemsPerSmallerArr = 10;
 							var count = 0;
 							var tmpArr = [];

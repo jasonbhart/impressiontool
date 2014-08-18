@@ -144,6 +144,8 @@
 								alert('To ensure reports are generated quickly, we must limit each report to 1000 IP addresses or less.');
 								return false;
 							}
+							$('.result-container').show();
+							$('#loading-data').show();
 							var itemsPerSmallerArr = 10;
 							var count = 0;
 							var tmpArr = [];
@@ -185,11 +187,11 @@
 										$('.lookup-result tbody').append(msg);
 										currentResult = $('.lookup-result tr').length;
 										if (currentResult > 50) {
-											$('.lookup-result tr').each(function(index, element) {
+											/*$('.lookup-result tr').each(function(index, element) {
 												if (index+1 > 50) {
 													$(this).remove();
 												}
-											})
+											})*/
 										}
 										$('#loading-data').hide();
 										isLookup = false;
@@ -257,8 +259,8 @@
 									return;
 								}
 								if (currentResult > 50) {
-									$('#exportForm').modal('show');
-									return;
+									//$('#exportForm').modal('show');
+									//return;
 								}
 								ajaxLookup();
 							}

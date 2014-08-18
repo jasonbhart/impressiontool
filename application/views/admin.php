@@ -201,15 +201,52 @@
 							}
 						}
 						function setDataToEditBlockName(field, data) {
-							return true;
+							$('#ip-block-name').val(data);
+							active_select = 'blockname-status';
+							active_field = field;
 						}
 						function setDataToEditBlockRange(field, data) {
-							return true;
+							$('#ip-block-range').val(data);
+							active_select = 'blockrange-status';
+							active_field = field;
 						}
 						function setDataToEditBlockOwner(field, data) {
-							return true;
+							$('#ip-block-owner').val(data);
+							active_select = 'blockowner-status';
+							active_field = field;
 						}
 						function submitEditForm(form) {
+							$.ajax({
+								type: $(form).attr('method'),
+								url: $(form).attr('action'),
+								data: $(form).serialize(),
+								success: function(msg) {
+									if (msg == 1) {
+										var list_class;
+										if ($('.' + active_select + ' :selected').val() == 1) {
+											list_class = 'black';
+										}
+										;
+										if ($('.' + active_select + ' :selected').val() == 0) {
+											list_class = 'white';
+										}
+										;
+										$(active_field).removeClass('black');
+										$(active_field).removeClass('white');
+										$(active_field).removeClass('notwhois');
+										$(active_field).addClass(list_class);
+										$('.modal').modal('hide');
+									}
+									else {
+										alert('error');
+									}
+								},
+								error: function() {
+
+
+
+								}
+							});
 							return false;
 						}
 						//check user go to bottom make a new data
@@ -227,6 +264,92 @@
 							}
 						});
         </script>
+        <!-- Modal -->
+        <div class="modal fade" id="addToListBlockName" tabindex="-1" role="dialog" aria-labelledby="addToListBlockName" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                        <h4 class="modal-title" id="myModalLabel">Ip block name</h4>
+                    </div>
+                    <form onsubmit="return submitEditForm(this)" role="form" method="post" action="<?php echo base_url('index.php/home/ajax'); ?>">
+                        <div class="modal-body">
+                            <p> Choose list for the ip block name</p>
+                            <input type="hidden" name="ip_block_name" id="ip-block-name">
+                            <input type="hidden" name="action" value="editBlockName">
+                            <div class="form-group">
+
+                                <select name="status" class="form-control blockname-status">
+                                    <option value="1">Black List</option>
+                                    <option value="0">White List</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Save changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <!-- Modal -->
+        <div class="modal fade" id="addToListBlockRange" tabindex="-1" role="dialog" aria-labelledby="addToListBlockRange" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                        <h4 class="modal-title" id="myModalLabel">Ip block range</h4>
+                    </div>
+                    <form onsubmit="return submitEditForm(this)"  role="form" method="post" action="<?php echo base_url('index.php/home/ajax'); ?>">
+                        <div class="modal-body">
+                            <p> Choose list for the ip block range</p>
+                            <input type="hidden" name="ip_block_range" id="ip-block-range">
+                            <input type="hidden" name="action" value="editBlockRange">
+                            <div class="form-group">
+                                <select name="status" class="form-control blockrange-status">
+                                    <option value="1">Black List</option>
+                                    <option value="0">White List</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Save changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <!-- Modal -->
+        <div class="modal fade" id="addToListBlockOwner" tabindex="-1" role="dialog" aria-labelledby="addToListBlockOwner" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                        <h4 class="modal-title" id="myModalLabel">Ip block owner</h4>
+                    </div>
+                    <form onsubmit="return submitEditForm(this)"  role="form" method="post" action="<?php echo base_url('index.php/home/ajax'); ?>">
+                        <div class="modal-body">
+                            <p> Choose list for the ip block owner</p>
+                            <input type="hidden" name="ip_block_owner" id="ip-block-owner">
+                            <input type="hidden" name="action" value="editBlockOwner">
+                            <div class="form-group">
+                                <select name="status" class="form-control blockowner-status">
+
+                                    <option value="1">Black List</option>
+                                    <option value="0">White List</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Save changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
 
 		<!-- export field modal -->
 		<div class="modal fade" id="exportForm" tabindex="-1" role="dialog" aria-labelledby="exportForm" aria-hidden="true">

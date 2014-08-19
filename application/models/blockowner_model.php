@@ -49,15 +49,15 @@ class Blockowner_model extends CI_Model {
 		$status = -1;
 		if (isset($list[1])) { //black list
 			foreach ($list[1] as $item) {
-				if (strpos($ip_block_owner, $item) !== false) {
+				if (strpos(strtolower($ip_block_owner), strtolower($item)) !== false) {
 					$status = 1;
 					break;
 				}
 			}
 		}
-		if (isset($list[0])) { //black list
+		if (isset($list[0])) { //white list
 			foreach ($list[0] as $item) {
-				if (strpos($ip_block_owner, $item) !== false) {
+				if (strpos(strtolower($ip_block_owner), strtolower($item)) !== false) {
 					$status = 0;
 					break;
 				}

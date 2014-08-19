@@ -48,7 +48,7 @@ class Blockname_model extends CI_Model {
 		$status = -1;
 		if (isset($list[1])) { //black list
 			foreach ($list[1] as $item) {
-				if (strpos($ip_block_name, $item) !== false) {
+				if (strpos(strtolower($ip_block_name), strtolower($item)) !== false) {
 					$status = 1;
 					break;
 				}
@@ -56,7 +56,7 @@ class Blockname_model extends CI_Model {
 		}
 		if (isset($list[0])) { //black list
 			foreach ($list[0] as $item) {
-				if (strpos($ip_block_name, $item) !== false) {
+				if (strpos(strtolower($ip_block_name), strtolower($item)) !== false) {
 					$status = 0;
 					break;
 				}

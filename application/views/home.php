@@ -208,6 +208,7 @@
 										}
 										$('#loading-data').hide();
 										isLookup = false;
+										currentPackage++;
 									},
 									error: function() {
 
@@ -230,7 +231,6 @@
 						//check user go to bottom make a new data
 						$(window).scroll(function() {
 							if ($(window).scrollTop() + window.innerHeight == $(document).height()) {
-								currentPackage++;
 								if (currentPackage >= ipPackages.length) {
 									return;
 								}

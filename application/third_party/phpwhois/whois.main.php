@@ -296,11 +296,11 @@ class Whois extends WhoisClient {
 				$result['regrinfo']['domain']['nserver'] = $this->FixNameServer($result['regrinfo']['domain']['nserver']);
 		}
 	}
-	
+
 	//validate a ip 
 	function checkValidateIp($ip) {
 		$query = $ip;
-		
+
 		$IDN = new idna_convert();
 
 		$query = $IDN->encode(utf8_encode($query));
@@ -391,7 +391,29 @@ class Whois extends WhoisClient {
 			$res = $handler->parse($result, $this->Query['query']);
 			$ipowners[] = $res;
 		}
-		return $ipowners;
+		//remove big range
+		$iprange = array();
+		$min = 100000000000; //very max :D
+		$whoisMin = array();
+		
+		foreach ($ipowners as $whois) {
+			$tempResultWhois['ip_block_range'] = '';
+			
+			if (isset($whois['regrinfo']['network']['inetnum']))
+				$tempResultWhois['ip_block_range'] = $whois['regrinfo']['network']['inetnum'];
+
+			//check with three owner
+			if (isset($whois['regrinfo']['network'][0]['inetnum']))
+				$tempResultWhois['ip_block_range'] = $whois['regrinfo']['network'][0]['inetnum'];
+			$iprange = explode('-', $tempResultWhois['ip_block_range']);
+			$iprange = ip2long(trim($iprange[1])) - ip2long(trim($iprange[0]));
+			if($iprange < $min) {
+				$min = $iprange;
+				$whoisMin = $whois;
+			}
+		}
+		$resultWhois[] = $whoisMin;
+		return $resultWhois;
 	}
 
 }
